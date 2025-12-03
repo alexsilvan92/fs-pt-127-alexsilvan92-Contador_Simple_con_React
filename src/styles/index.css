@@ -9,3 +9,7 @@
     import 'relative/path/to/stylesheet.scss';
 
 */
+.noselect {
+  user-select: none;
+  cursor: default;
+}

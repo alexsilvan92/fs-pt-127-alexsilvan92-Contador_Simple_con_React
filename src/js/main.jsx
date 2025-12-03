@@ -10,26 +10,76 @@ import "../styles/index.css";
 
 // components
 import Home from "./components/Home";
-import Counter from "./components/Counter";
+import Contador from "./components/Contador";
 
-let contador = -1;
+// ========== ESTADO GLOBAL DEL CONTADOR ==========
+let contador = 0;
+let interval = null;
+let pausado = false;
 
-setInterval(() => {
-  contador++;
-  const unidades = Math.floor((contador / 1) % 10);
-  const decenas = Math.floor((contador / 10) % 10);
-  const centenas = Math.floor((contador / 100) % 10);
-  const unidades_mil = Math.floor((contador / 1000) % 10);
-  const decenas_mil = Math.floor((contador / 10000) % 10);
-  const centenas_mil = Math.floor(contador / 100000);
+// ========== FUNCIÓN PARA RENDERIZAR ==========
+function renderContador() {
+  const unidades = Math.floor((contador/1)%10);
+  const decenas = Math.floor((contador/10)%10);
+  const centenas = Math.floor((contador/100)%10);
+  const unidades_mil = Math.floor((contador/1000)%10);
+  const decenas_mil = Math.floor((contador/10000)%10);
+  const centenas_mil = Math.floor(contador/100000);
+  const horas = (Math.floor(contador/3600)).toLocaleString("es-ES", { minimumIntegerDigits: 2 });
+  const minutos = (Math.floor((contador%3600)/60)).toLocaleString("es-ES", { minimumIntegerDigits: 2 }); 
+  const segundos = String(contador%60).padStart(2, '0');
+  
   ReactDOM.createRoot(document.getElementById("root")).render(
-    <Counter
+    <Contador
       centenas_mil={centenas_mil}
       decenas_mil={decenas_mil}
       unidades_mil={unidades_mil}
       centenas={centenas}
       decenas={decenas}
       unidades={unidades}
+      horas={horas}
+      minutos={minutos}
+      segundos={segundos}
+      onPause={pausarContador}
+      onResume={resumeContador}
+      onReset={resetContador}
+      pausado={pausado}
     />
   );
-}, 1000);
+}
+
+// ========== FUNCIÓN PARA ACTUALIZAR EL CONTADOR ==========
+function actualizarContador() {
+  contador++;
+  renderContador();
+}
+
+// ========== FUNCIÓN PARA PAUSAR ==========
+function pausarContador() {
+  if (interval) {
+    clearInterval(interval);
+    interval = null;
+    pausado = true;
+    renderContador();
+  }
+}
+
+// ========== FUNCIÓN PARA PLAY ==========
+function resumeContador() {
+  if (!interval) {
+    interval = setInterval(actualizarContador, 1000);
+    pausado = false;
+    renderContador();
+  }
+}
+
+// ========== FUNCIÓN PARA REINICIAR ==========
+function resetContador() {
+  pausarContador();
+  contador = 0;
+  renderContador();
+}
+
+// ========== INICIO DEL CONTADOR ==========
+renderContador();                               // Renderizado inicial
+interval = setInterval(actualizarContador, 1000); // Iniciar contador
